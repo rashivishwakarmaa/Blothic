@@ -90,7 +90,7 @@ Happy blogging & storytelling with Blothic!
 
 I have added a self screen-recorded video demonstrating the project workflow:
 
-[▶️ Watch Project Demo](https://drive.google.com/file/d/15X5EMqynVRlZC-u1DsGa2_EAwgPQAJSe/view?usp=sharing)
+[▶️ Watch Project Demo](https://drive.google.com/file/d/1x6rV63bhQLyiD75m6sw_DY2r3FGsweEY/view?usp=sharing)
 
 ## 🚀 Live Demo
 
