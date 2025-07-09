@@ -83,7 +83,7 @@ Happy blogging & storytelling with Blothic!
 
 ### How to Customize
 
-- Replace all instances of `yourgithubusername` and `blothic` with your actual GitHub username and repository name.  
+- Replace all instances of `yourgithubusername` and `blothic` with your actual GitHub username and repository name.
 - You can add your contact info or social media links in the **Contact** section if you want.
 
 ## 📹 Project Demo
@@ -94,6 +94,6 @@ I have added a self screen-recorded video demonstrating the project workflow:
 
 ## 🚀 Live Demo
 
-View the deployed project here: [Live Project](https://rashivishwakarmaa.github.io/galaxy-portfolio/)
+View the deployed project here: [Live Project](https://rashivishwakarmaa.github.io/Blothic/)
 
 Made with ❤️ by Rashi Vishwakarma
