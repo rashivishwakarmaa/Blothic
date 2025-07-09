@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en" >
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Blothic - Explore. Express. Inspire.</title>
+  <meta name="description" content="Blothic - A Markdown Blogging Platform themed Sunset Canvas. Explore, express, and inspire with your stories." />
+  <meta name="author" content="Blothic Team" />
+  <base href="./" />
+
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter&family=Playfair+Display&display=swap" rel="stylesheet" />
+
+  <!-- Tailwind CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Custom Styles -->
+  <link rel="stylesheet" href="styles.css" />
+
+  <style>
+    .typewriter {
+      overflow: hidden;
+      border-right: .15em solid #FF4081;
+      white-space: nowrap;
+      animation:
+        typing 4s steps(30, end),
+        blink-caret .75s step-end infinite;
+      font-family: 'Playfair Display', serif;
+      font-weight: 700;
+      font-size: 2.5rem;
+      max-width: 25ch;
+      color: #333333;
+    }
+    @keyframes typing {
+      from { width: 0; }
+      to { width: 25ch; }
+    }
+    @keyframes blink-caret {
+      from, to { border-color: transparent; }
+      50% { border-color: #FF4081; }
+    }
+  </style>
+</head>
+<body class="min-h-screen font-sans bg-gradient-to-br from-[#FF6E7F] to-[#BFE9FF] text-[#333333] flex flex-col">
+  <header class="flex justify-between items-center p-6 max-w-7xl mx-auto w-full">
+    <a href="index.html" aria-label="Blothic Home" class="flex items-center gap-3">
+      <svg class="w-8 h-8" viewBox="0 0 24 24" fill="url(#gradient1)" xmlns="http://www.w3.org/2000/svg" >
+        <defs>
+          <linearGradient id="gradient1" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%" stop-color="#FF6F00"/>
+            <stop offset="100%" stop-color="#FF4081"/>
+          </linearGradient>
+        </defs>
+        <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04a1.003 1.003 0 000-1.42l-2.34-2.34a1.003 1.003 0 00-1.42 0l-1.83 1.83 3.75 3.75 1.84-1.82z" />
+      </svg>
+      <span class="text-3xl font-bold text-white">Blothic</span>
+    </a>
+    <nav class="hidden md:flex gap-8 text-white font-semibold">
+      <a href="editor.html" class="hover:text-[#FF6F00] transition">Start Writing</a>
+      <a href="explore.html" class="hover:text-[#FF6F00] transition">Read Stories</a>
+    </nav>
+  </header>
+
+  <main class="flex-grow flex flex-col justify-center items-center text-center px-4 sm:px-6 lg:px-8 max-w-4xl mx-auto">
+    <h1 class="text-white text-6xl md:text-7xl font-extrabold drop-shadow-lg leading-tight">
+      Write your story, discover others,<br />
+      and let your words inspire.
+    </h1>
+
+    <p class="mt-8 typewriter">Explore. Express. Inspire.</p>
+
+    <div class="mt-12 flex gap-6 justify-center">
+      <a href="editor.html" class="px-8 py-3 rounded-md bg-[#FF6F00] text-white font-semibold hover:bg-[#DD5C00] transition-shadow shadow-md">
+        Start Writing
+      </a>
+      <a href="explore.html" class="px-8 py-3 rounded-md border-2 border-white text-white font-semibold hover:border-[#FF6F00] hover:text-[#FF6F00] transition">
+        Read Stories
+      </a>
+    </div>
+
+    <blockquote id="rotatingQuotes" class="mt-14 max-w-xl text-white text-lg italic opacity-80"></blockquote>
+  </main>
+
+  <footer class="bg-gradient-to-r from-[#FF6F00] to-[#FF4081] py-5 text-white text-center font-semibold">
+    Built with <span aria-label="love" role="img">❤️</span> for storytellers.
+    <p>&copy; 2025 Rashi Vishwakarma. All rights reserved.</p>
+  </footer>
+
+  <script>
+    const quotes = [
+      '"Creativity takes courage." – Henri Matisse',
+      '"The purpose of a storyteller is to awaken the imagination."',
+      '"Words are, in my not-so-humble opinion, our most inexhaustible source of magic."',
+      '"Express yourself, because others might relate and be inspired."'
+    ];
+    let index = 0;
+    const quoteElem = document.getElementById('rotatingQuotes');
+
+    function cycleQuotes() {
+      quoteElem.textContent = quotes[index];
+      index = (index + 1) % quotes.length;
+    }
+    cycleQuotes();
+    setInterval(cycleQuotes, 7000);
+  </script>
+</body>
+</html>

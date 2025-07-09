@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en" >
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Blothic Explore - Read Stories</title>
+  <meta name="description" content="Explore inspiring Markdown blog posts on Blothic." />
+  <meta name="author" content="Blothic Team" />
+  <base href="./" />
+
+  <link href="https://fonts.googleapis.com/css2?family=Inter&family=Playfair+Display&display=swap" rel="stylesheet" />
+
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body class="min-h-screen bg-gradient-to-br from-[#FF6E7F] to-[#BFE9FF] text-[#333333] font-sans flex flex-col">
+  <header class="flex items-center justify-between p-6 max-w-7xl mx-auto w-full">
+    <a href="index.html" aria-label="Back to Blothic Home" class="flex items-center gap-3 text-[#FF6F00] font-bold text-xl">
+      <svg class="w-6 h-6" fill="none" stroke="#FF6F00" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round" >
+        <path d="M15 18l-6-6 6-6" />
+      </svg>
+      Back
+    </a>
+    <h1 class="text-3xl font-playfair text-[#FF4081]">Explore Stories</h1>
+    <div></div>
+  </header>
+
+  <section class="max-w-7xl mx-auto w-full px-6 mb-6 flex flex-col md:flex-row md:justify-between gap-4">
+    <input id="searchInput" type="search" placeholder="Search posts..." aria-label="Search posts" class="border border-[#FF6F00] rounded-md p-3 flex-grow focus:outline-none focus:ring-2 focus:ring-[#FF4081]" />
+    <select id="tagFilter" aria-label="Filter by tag" class="border border-[#FF6F00] rounded-md p-3 max-w-xs focus:outline-none focus:ring-2 focus:ring-[#FF4081]">
+      <option value="">Filter by Tag</option>
+    </select>
+  </section>
+
+  <main class="max-w-7xl mx-auto grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8 px-6 pb-12" id="blogGrid"></main>
+
+  <footer class="bg-gradient-to-r from-[#FF6F00] to-[#FF4081] py-5 text-white text-center font-semibold mt-auto">
+    Built with <span aria-label="love" role="img">❤️</span> for storytellers.
+  </footer>
+
+  <script src="app.js"></script>
+
+  <script>
+    const posts = loadPosts().filter(post => !post.draft);
+
+    const blogGrid = document.getElementById('blogGrid');
+    const searchInput = document.getElementById('searchInput');
+    const tagFilter = document.getElementById('tagFilter');
+
+    let allTags = new Set();
+    posts.forEach(post => {
+      post.tags.forEach(tag => allTags.add(tag.toLowerCase()));
+    });
+
+    function populateTagFilter() {
+      allTags.forEach(tag => {
+        const option = document.createElement('option');
+        option.value = tag;
+        option.textContent = tag.charAt(0).toUpperCase() + tag.slice(1);
+        tagFilter.appendChild(option);
+      });
+    }
+    populateTagFilter();
+
+    function createCard(post) {
+      const card = document.createElement('article');
+      card.className = 'blog-card blog-card-shadow rounded-lg cursor-default hover:shadow-lg transition-shadow';
+
+      const img = document.createElement('img');
+      img.src = post.coverImage || 'https://via.placeholder.com/400x180.png?text=No+Cover+Image';
+      img.alt = post.title;
+      card.appendChild(img);
+
+      const contentDiv = document.createElement('div');
+      contentDiv.className = 'p-4';
+
+      const h2 = document.createElement('h2');
+      h2.className = 'text-xl font-playfair font-semibold text-[#FF4081] mb-2';
+      h2.textContent = post.title;
+      contentDiv.appendChild(h2);
+
+      const p = document.createElement('p');
+      p.className = 'text-sm text-[#555555] mb-3 line-clamp-3';
+      p.textContent = post.excerpt;
+      contentDiv.appendChild(p);
+
+      if(post.tags.length > 0){
+        const tagsDiv = document.createElement('div');
+        tagsDiv.className = 'flex flex-wrap gap-2 mb-3';
+        post.tags.forEach(tag => {
+          const tagSpan = document.createElement('span');
+          tagSpan.textContent = tag;
+          tagSpan.className = 'text-xs bg-[#FF6F00] rounded-full px-2 py-0.5 text-white font-semibold';
+          tagsDiv.appendChild(tagSpan);
+        });
+        contentDiv.appendChild(tagsDiv);
+      }
+
+      const meta = document.createElement('div');
+      meta.className = 'text-xs text-[#555555]';
+      const date = new Date(post.date);
+      meta.textContent = `By ${post.author} • ${date.toLocaleDateString()}`;
+      contentDiv.appendChild(meta);
+      card.appendChild(contentDiv);
+
+      const actionsDiv = document.createElement('div');
+      actionsDiv.className = 'p-4 flex gap-2 justify-end';
+
+      const readBtn = document.createElement('button');
+      readBtn.textContent = 'Read';
+      readBtn.className = 'btn-primary text-sm px-3 py-1';
+      readBtn.onclick = (e) => {
+        e.stopPropagation();
+        window.location.href = `post.html?id=${post.id}`;
+      };
+      actionsDiv.appendChild(readBtn);
+
+      const editBtn = document.createElement('button');
+      editBtn.textContent = 'Edit';
+      editBtn.className = 'btn-secondary text-sm px-3 py-1';
+      editBtn.onclick = (e) => {
+        e.stopPropagation();
+        window.location.href = `editor.html?id=${post.id}`;
+      };
+      actionsDiv.appendChild(editBtn);
+
+      card.appendChild(actionsDiv);
+
+      return card;
+    }
+
+    function renderPosts(postsToRender) {
+      blogGrid.innerHTML = '';
+      if(postsToRender.length === 0){
+        blogGrid.innerHTML = '<p class="text-center col-span-full text-[#FF4081] font-semibold">No posts found.</p>';
+        return;
+      }
+      postsToRender.forEach(post => {
+        blogGrid.appendChild(createCard(post));
+      });
+    }
+
+    renderPosts(posts);
+
+    function filterPosts() {
+      const search = searchInput.value.toLowerCase();
+      const selectedTag = tagFilter.value.toLowerCase();
+
+      const filtered = posts.filter(post => {
+        const matchesTag = selectedTag ? post.tags.some(t => t.toLowerCase() === selectedTag) : true;
+        const matchesSearch =
+          post.title.toLowerCase().includes(search) ||
+          post.content.toLowerCase().includes(search) ||
+          post.excerpt.toLowerCase().includes(search);
+        return matchesTag && matchesSearch;
+      });
+      renderPosts(filtered);
+    }
+
+    searchInput.addEventListener('input', filterPosts);
+    tagFilter.addEventListener('change', filterPosts);
+  </script>
+</body>
+</html>

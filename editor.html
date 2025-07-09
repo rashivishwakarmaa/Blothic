@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en" >
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Blothic Editor - Write your story</title>
+  <meta name="description" content="Write and publish posts in Markdown with live preview on Blothic." />
+  <meta name="author" content="Blothic Team" />
+  <base href="./" />
+
+  <link href="https://fonts.googleapis.com/css2?family=Inter&family=Playfair+Display&family=Fira+Code&display=swap" rel="stylesheet" />
+
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/atom-one-light.min.css" />
+
+  <link rel="stylesheet" href="styles.css" />
+
+  <style>
+    .split-pane {
+      display: flex;
+      height: calc(100vh - 64px - 56px);
+      border-radius: 0 0 10px 10px;
+      overflow: hidden;
+      background: white;
+    }
+    .split-pane > div {
+      width: 50%;
+      height: 100%;
+      overflow-y: auto;
+    }
+    @media (max-width: 768px) {
+      .split-pane {
+        flex-direction: column;
+      }
+      .split-pane > div {
+        width: 100%;
+        height: 50vh;
+      }
+    }
+  </style>
+</head>
+<body class="flex flex-col min-h-screen bg-gradient-to-br from-[#FF6E7F] to-[#BFE9FF] text-[#333333] font-sans">
+  <header class="flex items-center justify-between bg-white/90 backdrop-blur-md px-6 py-4 shadow-md sticky top-0 z-10">
+    <a href="index.html" aria-label="Back to Blothic Home" class="flex items-center gap-3 text-[#FF6F00] font-bold text-xl">
+      <svg class="w-6 h-6" fill="none" stroke="#FF6F00" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round" >
+        <path d="M15 18l-6-6 6-6" />
+      </svg>
+      Back
+    </a>
+
+    <h1 class="text-2xl font-playfair text-[#FF4081]">Blothic Editor</h1>
+
+    <div class="flex gap-3">
+      <button id="saveDraftBtn" class="btn-secondary" title="Save Draft">Save Draft</button>
+      <button id="previewToggleBtn" class="btn-secondary md:hidden" title="Toggle Preview">Preview</button>
+      <button id="publishBtn" class="btn-primary" title="Publish Post">Publish</button>
+    </div>
+  </header>
+
+  <main class="split-pane mx-auto max-w-7xl rounded-b-lg shadow-lg overflow-hidden">
+    <div class="editor-pane p-4 bg-[#FFF3E0] border-r-4 border-gradient-to-b from-[#FF6F00] to-[#FF4081]">
+      <input id="titleInput" type="text" placeholder="Post Title" class="w-full mb-2 rounded-md border border-[#FF6F00] p-3 font-playfair text-2xl focus:outline-none focus:ring-2 focus:ring-[#FF4081]" required />
+      <input id="authorInput" type="text" placeholder="Author Name (optional)" class="w-full mb-2 rounded-md border border-[#FF6F00] p-2 focus:outline-none focus:ring-2 focus:ring-[#FF4081]" />
+      <input id="tagsInput" type="text" placeholder="Tags (comma separated)" class="w-full mb-2 rounded-md border border-[#FF6F00] p-2 focus:outline-none focus:ring-2 focus:ring-[#FF4081]" />
+      <input id="coverInput" type="url" placeholder="Cover Image URL (optional)" class="w-full mb-4 rounded-md border border-[#FF6F00] p-2 focus:outline-none focus:ring-2 focus:ring-[#FF4081]" />
+      <textarea id="markdownInput" class="editor-textarea" placeholder="Write your post in Markdown..."></textarea>
+    </div>
+
+    <div class="preview-pane p-6 overflow-y-auto hidden md:block" id="livePreview" aria-live="polite" aria-label="Live preview of Markdown content"></div>
+  </main>
+
+  <script>
+    const previewToggleBtn = document.getElementById('previewToggleBtn');
+    const livePreview = document.getElementById('livePreview');
+    const editorPane = document.querySelector('.editor-pane');
+
+    previewToggleBtn.addEventListener('click', () => {
+      if (livePreview.classList.contains('hidden')) {
+        livePreview.classList.remove('hidden');
+        editorPane.classList.add('hidden');
+        previewToggleBtn.textContent = 'Edit';
+      } else {
+        livePreview.classList.add('hidden');
+        editorPane.classList.remove('hidden');
+        previewToggleBtn.textContent = 'Preview';
+      }
+    });
+  </script>
+
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+
+  <script src="markdown.js"></script>
+  <script src="app.js"></script>
+
+  <script>
+    const markdownInput = document.getElementById('markdownInput');
+    const titleInput = document.getElementById('titleInput');
+    const tagsInput = document.getElementById('tagsInput');
+    const coverInput = document.getElementById('coverInput');
+    const authorInput = document.getElementById('authorInput');
+
+    function updatePreview() {
+      const md = markdownInput.value;
+      const html = marked.parse(md);
+      livePreview.innerHTML = html;
+      livePreview.querySelectorAll('pre code').forEach((block) => {
+        hljs.highlightElement(block);
+      });
+    }
+
+    markdownInput.addEventListener('input', updatePreview);
+    [titleInput, tagsInput, coverInput, authorInput].forEach(el => el.addEventListener('input', updatePreview));
+    updatePreview();
+
+    function loadLastDraft() {
+      const posts = loadPosts();
+      const draft = posts.find(p => p.draft === true && p.id === '_draft');
+      if(draft) {
+        titleInput.value = draft.title;
+        markdownInput.value = draft.content;
+        tagsInput.value = draft.tags.join(', ');
+        coverInput.value = draft.coverImage || '';
+        authorInput.value = draft.author || '';
+        updatePreview();
+      }
+    }
+
+    loadLastDraft();
+
+    const urlParams = new URLSearchParams(window.location.search);
+    const editId = urlParams.get('id');
+
+    if(editId && editId !== '_draft'){
+      const posts = loadPosts();
+      const postToEdit = posts.find(p => p.id === editId);
+      if(postToEdit){
+        titleInput.value = postToEdit.title;
+        markdownInput.value = postToEdit.content;
+        tagsInput.value = postToEdit.tags.join(', ');
+        coverInput.value = postToEdit.coverImage || '';
+        authorInput.value = postToEdit.author || '';
+        updatePreview();
+      }
+    }
+
+    function saveDraft() {
+      if (!titleInput.value.trim()) return;
+      const post = {
+        id: editId || '_draft',
+        title: titleInput.value.trim(),
+        content: markdownInput.value,
+        tags: tagsInput.value.split(',').map(t => t.trim()).filter(Boolean),
+        date: new Date().toISOString(),
+        author: authorInput.value.trim() || 'Anonymous',
+        excerpt: extractExcerpt(markdownInput.value),
+        coverImage: coverInput.value.trim(),
+        draft: true
+      };
+      const posts = loadPosts().filter(p => p.id !== post.id);
+      posts.unshift(post);
+      localStorage.setItem('blothic_posts', JSON.stringify(posts));
+    }
+
+    setInterval(saveDraft, 5000);
+    [markdownInput, titleInput, tagsInput, coverInput, authorInput].forEach(el => {
+      el.addEventListener('input', saveDraft);
+    });
+
+    document.getElementById('saveDraftBtn').addEventListener('click', () => {
+      if (!titleInput.value.trim()) {
+        alert('Please enter a post title before saving.');
+        titleInput.focus();
+        return;
+      }
+      saveDraft();
+      alert('Draft saved locally.');
+    });
+
+    document.getElementById('publishBtn').addEventListener('click', () => {
+      if (!titleInput.value.trim()) {
+        alert('Please enter a post title before publishing.');
+        titleInput.focus();
+        return;
+      }
+      let posts = loadPosts().filter(p => p.id !== (editId || '_draft'));
+
+      const post = {
+        id: editId || generateId(),
+        title: titleInput.value.trim(),
+        content: markdownInput.value,
+        tags: tagsInput.value.split(',').map(t => t.trim()).filter(Boolean),
+        date: new Date().toISOString(),
+        author: authorInput.value.trim() || 'Anonymous',
+        excerpt: extractExcerpt(markdownInput.value),
+        coverImage: coverInput.value.trim(),
+        draft: false
+      };
+      posts.unshift(post);
+      localStorage.setItem('blothic_posts', JSON.stringify(posts));
+      alert('Post published!');
+      window.location.href = 'explore.html';
+    });
+  </script>
+</body>
+</html>

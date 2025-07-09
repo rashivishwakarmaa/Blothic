@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en" >
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Blothic Post</title>
+  <meta name="description" content="Read a blog post on Blothic Markdown Blogging Platform." />
+  <meta name="author" content="Blothic Team" />
+  <base href="./" />
+
+  <link href="https://fonts.googleapis.com/css2?family=Inter&family=Playfair+Display&family=Fira+Code&display=swap" rel="stylesheet" />
+
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/atom-one-light.min.css" />
+
+  <link rel="stylesheet" href="styles.css" />
+
+  <style>
+    .cover-image {
+      position: relative;
+      height: 300px;
+      background-size: cover;
+      background-position: center center;
+      border-radius: 0 0 20px 20px;
+      display: flex;
+      align-items: flex-end;
+      color: white;
+    }
+    .cover-gradient-overlay {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(to bottom, rgba(255, 111, 0, 0.6), rgba(191, 233, 255, 0.6));
+      border-radius: 0 0 20px 20px;
+    }
+    .cover-text {
+      position: relative;
+      padding: 16px 24px;
+      backdrop-filter: brightness(70%);
+      width: 100%;
+      box-sizing: border-box;
+      z-index: 10;
+    }
+    .section-divider {
+      border-top: 2px solid #FF6F00;
+      margin: 2rem 0;
+      opacity: 0.5;
+    }
+  </style>
+</head>
+<body class="min-h-screen bg-gradient-to-br from-[#FF6E7F] to-[#BFE9FF] text-[#333333] font-sans flex flex-col">
+  <header class="flex items-center justify-between p-6 max-w-7xl mx-auto w-full">
+    <a href="explore.html" aria-label="Back to Explore" class="flex items-center gap-3 text-[#FF6F00] font-bold text-xl">
+      <svg class="w-6 h-6" fill="none" stroke="#FF6F00" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round" >
+        <path d="M15 18l-6-6 6-6" />
+      </svg>
+      Back
+    </a>
+    <h1 class="text-3xl font-playfair text-[#FF4081]">Story</h1>
+    <div></div>
+  </header>
+
+  <main class="max-w-4xl mx-auto px-6 w-full flex-grow pb-12">
+    <section id="postContainer" aria-live="polite" class="mb-12">
+      <div id="coverImage" class="cover-image rounded-lg mb-6">
+        <div class="cover-gradient-overlay"></div>
+        <div class="cover-text">
+          <h1 id="postTitle" class="text-4xl font-playfair font-bold"></h1>
+          <p id="postMeta" class="text-sm mt-1 text-[#555555]"></p>
+        </div>
+      </div>
+
+      <article id="postContent" class="prose prose-p:leading-relaxed prose-p:first-letter:text-5xl prose-p:first-letter:font-playfair prose-p:first-letter:font-bold prose-p:first-letter:text-[#FF6F00] prose-blockquote:border-l-4 prose-blockquote:border-[#FF6F00] prose-blockquote:text-[#FF6F00] prose-pre:bg-[#FFF3E0] prose-code:text-[#BF360C]" ></article>
+
+      <nav class="flex justify-between mt-16 text-[#FF6F00] font-semibold text-lg">
+        <button id="prevPostBtn" class="hover:underline cursor-pointer" disabled>← Previous</button>
+        <button id="nextPostBtn" class="hover:underline cursor-pointer" disabled>Next →</button>
+      </nav>
+    </section>
+  </main>
+
+  <footer class="bg-gradient-to-r from-[#FF6F00] to-[#FF4081] py-5 text-white text-center font-semibold mt-auto">
+    Built with <span aria-label="love" role="img">❤️</span> for storytellers.
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+
+  <script src="markdown.js"></script>
+  <script src="app.js"></script>
+
+  <script>
+    const urlParams = new URLSearchParams(window.location.search);
+    const postId = urlParams.get('id');
+
+    if (!postId) {
+      document.getElementById('postContainer').innerHTML = '<p class="text-center text-xl text-[#FF4081]">No post specified.</p>';
+    } else {
+      const posts = loadPosts().filter(p => !p.draft);
+      const postIndex = posts.findIndex(p => p.id === postId);
+      if(postIndex === -1) {
+        document.getElementById('postContainer').innerHTML = '<p class="text-center text-xl text-[#FF4081]">Post not found.</p>';
+      } else {
+        const post = posts[postIndex];
+        const coverImageDiv = document.getElementById('coverImage');
+        const coverUrl = post.coverImage || 'https://via.placeholder.com/1200x300.png?text=No+Cover+Image';
+        coverImageDiv.style.backgroundImage = `url('${coverUrl}')`;
+
+        document.getElementById('postTitle').textContent = post.title;
+        const date = new Date(post.date);
+        document.getElementById('postMeta').textContent = `By ${post.author} • ${date.toLocaleDateString()}`;
+
+        let html = marked.parse(post.content);
+        document.getElementById('postContent').innerHTML = html;
+
+        document.querySelectorAll('pre code').forEach((block) => {
+          hljs.highlightElement(block);
+        });
+
+        const prevBtn = document.getElementById('prevPostBtn');
+        const nextBtn = document.getElementById('nextPostBtn');
+
+        if(postIndex > 0) {
+          prevBtn.disabled = false;
+          prevBtn.onclick = () => {
+            const prevPost = posts[postIndex - 1];
+            window.location.href = `post.html?id=${prevPost.id}`;
+          }
+        }
+        if(postIndex < posts.length - 1) {
+          nextBtn.disabled = false;
+          nextBtn.onclick = () => {
+            const nextPost = posts[postIndex + 1];
+            window.location.href = `post.html?id=${nextPost.id}`;
+          }
+        }
+      }
+    }
+  </script>
+</body>
+</html>
